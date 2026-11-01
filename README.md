@@ -78,4 +78,5 @@ py -I tools\enemyhud_textures.py .
 
 ## License
 
-BSD 3-Clause. See [LICENSE](LICENSE), which keeps the original enemybar and Debuffed notices.
+BSD 3-Clause, see [LICENSE](LICENSE). The original enemybar and Debuffed notices are in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
