@@ -1,0 +1,8 @@
+# Each player's own settings, created at first load
+data/
+
+# Status icons are extracted from the player's own game files (see README)
+icons/
+
+*.bak
+__pycache__/
