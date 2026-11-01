@@ -6,13 +6,13 @@ Based on enemybar by Mike McKee (BSD) and the debuff tracking of Debuffed by Xat
 Status icons are extracted from the game's status icon DAT, ROM\119\57 (tools\extract_status_icons.py);
 rounded corner/cap textures come from tools\enemyhud_textures.py.
 
-Commands: //ehud check (toggle auto-check for levels), //ehud center, //ehud save
+Commands: //ehud check (toggle auto-check for levels), //ehud center, //ehud save, //ehud hide | show
 Drag the frame with the mouse to move it; the spot is saved.
 --]]
 
 _addon.name = 'EnemyHUD'
 _addon.author = 'Someonesmall (with Claude); enemybar by mmckee, Debuffed by Xathe'
-_addon.version = '1.2.1'
+_addon.version = '1.3.0'
 _addon.commands = {'ehud', 'enemyhud'}
 
 config = require('config')
@@ -173,6 +173,7 @@ local aggro = {}           -- [mob id] = id of whoever it last attacked, cast on
 local player_id = 0
 local trail_width = 0
 local visible = false
+local user_hidden = false  -- //ehud hide (e.g. while the map is open); not saved
 local origin = {x = 0, y = 0}
 
 local function anchor()
@@ -499,7 +500,7 @@ end
 
 local function render()
     local target = windower.ffxi.get_mob_by_target('st') or windower.ffxi.get_mob_by_target('t')
-    if not target then
+    if not target or user_hidden then
         if visible then hide_hud() end
         return
     end
@@ -643,7 +644,9 @@ windower.register_event('addon command', function(cmd)
         config.save(settings, 'all')
     elseif cmd == 'save' then
         config.save(settings, 'all')
+    elseif cmd == 'hide' or cmd == 'show' then
+        user_hidden = cmd == 'hide'
     else
-        windower.add_to_chat(207, 'EnemyHUD: //ehud check | center | save   (drag the frame to move it)')
+        windower.add_to_chat(207, 'EnemyHUD: //ehud check | center | save | hide | show   (drag the frame to move it)')
     end
 end)

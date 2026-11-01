@@ -43,6 +43,7 @@ Drag the frame with the mouse to move it; the position is saved.
 | `//ehud check` | Turn the automatic level check on or off |
 | `//ehud center` | Center the frame horizontally |
 | `//ehud save` | Save the settings now |
+| `//ehud hide` / `//ehud show` | Hide the frame until shown again (not saved) |
 
 ## Settings
 

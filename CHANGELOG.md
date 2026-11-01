@@ -2,6 +2,10 @@
 
 All notable changes to EnemyHUD. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] - 2026-11-01
+### Added
+- `//ehud hide` and `//ehud show`, e.g. to clear the screen while reading the map (not saved).
+
 ## [1.2.1] - 2026-11-01
 ### Fixed
 - Buff and debuff icons now follow `icon_size`; they were always drawn at the PNG's 32x32.
