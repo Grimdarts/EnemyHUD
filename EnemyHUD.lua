@@ -3,16 +3,18 @@ EnemyHUD: target HP bar in a Vana'diel-style frame, with the monster's level, wh
 a cast/readying bar and debuff icons with timers.
 
 Based on enemybar by Mike McKee (BSD) and the debuff tracking of Debuffed by Xathe (BSD).
-Status icons are extracted from the game's status icon DAT, ROM\119\57 (tools\extract_status_icons.py);
-rounded corner/cap textures come from tools\enemyhud_textures.py.
+Status icons are extracted from the game's status icon DAT, ROM\119\57, at first load (status_icons.lua;
+tools\extract_status_icons.py does the same outside the game); rounded corner/cap textures come from
+tools\enemyhud_textures.py.
 
-Commands: //ehud check (toggle auto-check for levels), //ehud center, //ehud save, //ehud hide | show
+Commands: //ehud check (toggle auto-check for levels), //ehud center, //ehud save, //ehud hide | show,
+//ehud icons [FFXI folder or 57.DAT] (extract the status icons again)
 Drag the frame with the mouse to move it; the spot is saved.
 --]]
 
 _addon.name = 'EnemyHUD'
 _addon.author = 'Someonesmall (with Claude); enemybar by mmckee, Debuffed by Xathe'
-_addon.version = '1.3.0'
+_addon.version = '1.4.0'
 _addon.commands = {'ehud', 'enemyhud'}
 
 config = require('config')
@@ -20,6 +22,7 @@ images = require('images')
 texts = require('texts')
 packets = require('packets')
 res = require('resources')
+status_icons = require('status_icons')
 require('tables')
 require('sets')
 
@@ -619,6 +622,27 @@ windower.register_event('mouse', function(type)
     end
 end)
 
+-- Status icons come from the player's own game files; given = a DAT file or FFXI folder (optional)
+local function extract_icons(given)
+    local dat, where = status_icons.find_dat(given)
+    if not dat then
+        windower.add_to_chat(167, 'EnemyHUD: no status icon DAT at '..where..'. Try //ehud icons <FFXI folder or 57.DAT>')
+        return
+    end
+    windower.create_dir(icon_dir)
+    local count, err = status_icons.extract(dat, icon_dir)
+    if count then
+        icon_paths = {}
+        windower.add_to_chat(207, 'EnemyHUD: '..count..' status icons extracted from '..where)
+    else
+        windower.add_to_chat(167, 'EnemyHUD: icon extraction failed: '..tostring(err))
+    end
+end
+
+windower.register_event('load', function()
+    if not windower.file_exists(icon_dir..'2.png') then extract_icons() end   -- 2 = Sleep
+end)
+
 windower.register_event('load', 'login', function()
     local player = windower.ffxi.get_player()
     player_id = player and player.id or 0
@@ -633,7 +657,7 @@ windower.register_event('unload', function()
     config.save(settings, 'all')
 end)
 
-windower.register_event('addon command', function(cmd)
+windower.register_event('addon command', function(cmd, ...)
     cmd = cmd and cmd:lower() or ''
     if cmd == 'check' then
         settings.auto_check = not settings.auto_check
@@ -646,7 +670,9 @@ windower.register_event('addon command', function(cmd)
         config.save(settings, 'all')
     elseif cmd == 'hide' or cmd == 'show' then
         user_hidden = cmd == 'hide'
+    elseif cmd == 'icons' then
+        extract_icons(table.concat({...}, ' '))
     else
-        windower.add_to_chat(207, 'EnemyHUD: //ehud check | center | save | hide | show   (drag the frame to move it)')
+        windower.add_to_chat(207, 'EnemyHUD: //ehud check | center | save | hide | show | icons [path]   (drag the frame to move it)')
     end
 end)

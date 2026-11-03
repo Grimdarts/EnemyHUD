@@ -2,6 +2,15 @@
 
 All notable changes to EnemyHUD. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] - 2026-11-02
+### Added
+- Status icons are extracted from the player's game files at first load, so Python is no longer
+  needed. An XIPivot overlay of the icon file (e.g. XI-View) is used when there is one.
+- `//ehud icons [FFXI folder or 57.DAT]` extracts them again.
+### Fixed
+- Icon extraction (addon and `tools/extract_status_icons.py`) now reads the game's palette-format
+  icons, which were skipped, and keeps XI-View's soft edges, which were clipped.
+
 ## [1.3.0] - 2026-11-01
 ### Added
 - `//ehud hide` and `//ehud show`, e.g. to clear the screen while reading the map (not saved).

@@ -23,16 +23,28 @@ attacking, what it is casting or readying, and its buffs and debuffs with timers
 ## Install
 
 1. Copy the `EnemyHUD` folder into `Windower4\addons\`.
-2. Extract the status icons from your own game files (they are not included in this repository):
-
-   ```
-   py -I tools\extract_status_icons.py "C:\Program Files (x86)\PlayOnline\SquareEnix\FINAL FANTASY XI\ROM\119\57.DAT" icons
-   ```
-
-   Run it from the `EnemyHUD` folder and use your own install path. If you use a status icon mod
-   (e.g. XI-View), point it at that mod's `119\57.DAT` instead to get its icons.
-3. Load it: `//lua load EnemyHUD`, or add `lua load EnemyHUD` to `Windower4\scripts\init.txt` to
+2. Load it: `//lua load EnemyHUD`, or add `lua load EnemyHUD` to `Windower4\scripts\init.txt` to
    load it at every launch. If you used the official `enemybar` addon, unload it so the two don't overlap.
+
+### Status icons
+
+The buff and debuff icons are not included in this repository; the addon extracts them from your own
+game files the first time it loads (no Python or other download needed) and says so in the chat log.
+It reads the status icon file `ROM\119\57.DAT`. If you use XIPivot and one of its overlays replaces
+that file (e.g. XI-View), the overlay's icons are used instead.
+
+To extract them again, e.g. after installing or removing an icon mod:
+
+| Command | Reads |
+|---|---|
+| `//ehud icons` | The XIPivot overlay if there is one, otherwise your game's own icons |
+| `//ehud icons C:\Path\To\FINAL FANTASY XI` | That FFXI folder's `ROM\119\57.DAT` |
+| `//ehud icons C:\Path\To\57.DAT` | That exact file, e.g. a mod you haven't installed with XIPivot |
+
+Reload afterwards (`//lua r EnemyHUD`) so icons already on screen pick up the new files.
+
+Outside the game, `tools\extract_status_icons.py` does the same with Python:
+`py -I tools\extract_status_icons.py <path to 57.DAT> icons`.
 
 ## Use
 
@@ -44,6 +56,7 @@ Drag the frame with the mouse to move it; the position is saved.
 | `//ehud center` | Center the frame horizontally |
 | `//ehud save` | Save the settings now |
 | `//ehud hide` / `//ehud show` | Hide the frame until shown again (not saved) |
+| `//ehud icons [path]` | Extract the status icons again (see [Status icons](#status-icons)) |
 
 ## Settings
 

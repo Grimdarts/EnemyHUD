@@ -2,9 +2,10 @@
 
   py -I extract_status_icons.py <57.DAT> <output folder>
 
-The DAT holds 640 entries of 0x1800 bytes. Entry N is status id N: a 32x32, 32-bit bitmap whose
-BITMAPINFOHEADER sits at 0x295, rows bottom-up in BGRA, with FFXI's alpha range 0..0x80.
-Stdlib only (PNG written with zlib).
+The DAT holds 640 entries of 0x1800 bytes. Entry N is status id N: a 32x32 bitmap whose
+BITMAPINFOHEADER sits at 0x295, rows bottom-up, either 32-bit BGRA or 8-bit with a 256-color BGRA
+palette. Game icons use alpha 0..0x80 (doubled here); XI-View's use the full 0..0xFF.
+Stdlib only (PNG written with zlib). The addon does the same at first load (status_icons.lua).
 """
 import struct
 import sys
@@ -28,16 +29,24 @@ def png_bytes(rgba_rows):
 
 def icon_rows(entry):
     size, width, height, planes, bpp = struct.unpack_from("<IiiHH", entry, HEADER_AT)
-    if (size, width, height, bpp) != (40, SIZE, SIZE, 32):
+    if (size, width, height) != (40, SIZE, SIZE):
         return None
-    pixels = entry[HEADER_AT + 40:HEADER_AT + 40 + SIZE * SIZE * 4]
+    at = HEADER_AT + 40
+    if bpp == 32:
+        pixels = entry[at:at + SIZE * SIZE * 4]
+    elif bpp == 8:
+        palette = [entry[at + i * 4:at + i * 4 + 4] for i in range(256)]
+        pixels = b"".join(palette[i] for i in entry[at + 1024:at + 1024 + SIZE * SIZE])
+    else:
+        return None
+    scale = 2 if max(pixels[3::4]) <= 0x80 else 1
     rows = []
     for y in range(SIZE - 1, -1, -1):  # bottom-up
         src = pixels[y * SIZE * 4:(y + 1) * SIZE * 4]
         row = bytearray(SIZE * 4)
         for x in range(SIZE):
             b, g, r, a = src[x * 4:x * 4 + 4]
-            row[x * 4:x * 4 + 4] = bytes((r, g, b, min(255, a * 2)))
+            row[x * 4:x * 4 + 4] = bytes((r, g, b, min(255, a * scale)))
         rows.append(bytes(row))
     return rows
 
